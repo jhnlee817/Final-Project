@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Clarifai from 'clarifai';
 import Navigation from './components/navigation/Navigation';
 import Logo from './components/Logo/Logo';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
@@ -8,32 +7,72 @@ import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import ParticlesBg from 'particles-bg';
 import './App.css';
 
-// const app = new Clarifai.App({
-//   apiKey: 'a64ae5a75e57499cbfd5ebb9eeb080bc'
-// });
+
+
+const returnClarifaiRequestOptions = (imageUrl) => {
+      // Your PAT (Personal Access Token) can be found in the portal under Authentification
+      const PAT = 'd32f97f3a3c24a5c8e649d527cfb336d';
+      // Specify the correct user_id/app_id pairings
+      // Since you're making inferences outside your app's scope
+      const USER_ID = 'jhnlee817';       
+      const APP_ID = 'my-first-application-05xbr';
+      // Change these to whatever model and image URL you want to use
+      const MODEL_ID = 'face-detection';
+      const IMAGE_URL = imageUrl;
+
+      const raw = JSON.stringify({
+        "user_app_id": {
+            "user_id": USER_ID,
+            "app_id": APP_ID
+        },
+        "inputs": [
+            {
+                "data": {
+                    "image": {
+                        "url": IMAGE_URL
+                    }
+                }
+            }
+        ]
+    });
+
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Key ' + PAT
+      },
+      body: raw
+  };
+
+  return requestOptions
+}
+
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
       input: '',
+      imageUrl: ''
     }
   }
 
   onInputChange = (event) => {
-    console.log(event.target.value);
+    this.setState({input: event.target.value});
   }
 
   onButtonSubmit = () => {
-    console.log('click');
-    // app.models.predict("a64ae5a75e57499cbfd5ebb9eeb080bc", "https://samples.clarifai.com/face-det.jpg").then (
-    //   function(response) {
-    //     console.log(response);
-    //   },
-    //   function(err) {
+    this.setState({imageUrl: this.state.input})
+    fetch("https://api.clarifai.com/v2/models/" + 'face-detection' + "/versions/" + "/outputs", returnClarifaiRequestOptions(this.state.input))
+    .then(response => response.json())
+    .then(response => {
+        console.log('hi', response);
+      },
+      function(err) {
 
-    //   }
-    // );
+      }
+    );
   }
 
 
@@ -45,7 +84,7 @@ class App extends Component {
         <Logo />
         <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit}/>
         <Rank />
-        {<FaceRecognition />}
+        <FaceRecognition imageUrl={this.state.imageUrl}/>
       </div>
     )
   }
