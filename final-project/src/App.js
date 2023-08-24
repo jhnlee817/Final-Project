@@ -36,7 +36,7 @@ const returnClarifaiRequestOptions = (imageUrl) => {
         ]
     });
 
-    const requestOptions = {
+    return {
       method: 'POST',
       headers: {
           'Accept': 'application/json',
@@ -44,8 +44,6 @@ const returnClarifaiRequestOptions = (imageUrl) => {
       },
       body: raw
   };
-
-  return requestOptions
 }
 
 
